@@ -1,0 +1,358 @@
+<style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0a;
+      color: #f0e6d3;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+    .pattern-overlay {
+      position: fixed; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(192, 57, 43, .03) 40px, rgba(192, 57, 43, .03) 41px),
+        repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(192, 57, 43, .03) 40px, rgba(192, 57, 43, .03) 41px);
+      pointer-events: none; z-index: 0;
+    }
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
+      background: linear-gradient(135deg, #1a0a0a 0%, #2d1810 30%, #1a1410 60%, #0d0d0a 100%);
+      overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(192, 57, 43, .15) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 30%, rgba(241, 196, 15, .08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(39, 174, 96, .06) 0%, transparent 40%);
+      z-index: 1;
+    }
+    .hero-content { position: relative; z-index: 2; }
+    .hero-badge {
+      display: inline-block;
+      padding: .5rem 1.5rem;
+      border: 1px solid rgba(192, 57, 43, .5);
+      border-radius: 100px;
+      font-size: .8rem; letter-spacing: 3px; text-transform: uppercase;
+      color: #e74c3c; margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
+    }
+    .hero h1 {
+      font-size: clamp(3.5rem, 12vw, 8rem);
+      font-weight: 900; line-height: 1;
+      background: linear-gradient(135deg, #f5e6d3 0%, #e74c3c 40%, #f1c40f 70%, #f5e6d3 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: .5rem;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      color: rgba(245, 230, 211, .7); font-weight: 300;
+      max-width: 600px; margin: 0 auto 2rem;
+    }
+    .hero-flag {
+      display: flex; gap: 4px; justify-content: center; margin-bottom: 1.5rem;
+    }
+    .hero-flag span { width: 30px; height: 20px; border-radius: 2px; }
+    .hero-flag .red { background: #e70013; }
+    .hero-flag .white { background: #f5f5f5; }
+    .scroll-indicator {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      z-index: 2; animation: bounce 2s infinite;
+      color: rgba(245, 230, 211, .4); font-size: .8rem; letter-spacing: 2px;
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+    }
+    .scroll-indicator .arrow { font-size: 1.5rem; }
+    @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 1rem 2rem;
+      display: flex; justify-content: space-between; align-items: center;
+      backdrop-filter: blur(20px); background: rgba(10, 10, 10, .7);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    nav .logo {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700; font-size: 1.3rem;
+      background: linear-gradient(135deg, #e74c3c, #f1c40f);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    nav a { color: rgba(245, 230, 211, .6); text-decoration: none; font-size: .85rem; transition: color .2s; margin-left: 2rem; }
+    nav a:hover { color: #f5e6d3; }
+    section { padding: 6rem 2rem; position: relative; z-index: 1; }
+    .section-title { text-align: center; font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1rem; }
+    .section-sub { text-align: center; color: rgba(245, 230, 211, .5); max-width: 600px; margin: 0 auto 4rem; font-weight: 300; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    #about { background: linear-gradient(180deg, #0a0a0a 0%, #111008 100%); }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    @media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; gap: 2rem; } }
+    .about-text p { margin-bottom: 1rem; color: rgba(245, 230, 211, .75); }
+    .about-text .highlight { color: #e74c3c; font-weight: 600; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .stat-card { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 16px; padding: 1.5rem; text-align: center; backdrop-filter: blur(10px); transition: transform .3s, background .3s; }
+    .stat-card:hover { transform: translateY(-4px); background: rgba(255,255,255,.06); }
+    .stat-card .number { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: #f1c40f; }
+    .stat-card .label { font-size: .8rem; color: rgba(245,230,211,.5); margin-top: .3rem; }
+    #videos { background: linear-gradient(180deg, #111008 0%, #0a0a0a 100%); }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem; }
+    .video-card { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 20px; overflow: hidden; transition: transform .4s, box-shadow .4s; }
+    .video-card:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+    .video-card .thumb { position: relative; width: 100%; padding-top: 56.25%; background: linear-gradient(135deg, #1a1410, #2d1810); overflow: hidden; }
+    .video-card .thumb iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    .video-card .info { padding: 1.5rem; }
+    .video-card .info h3 { font-size: 1.1rem; margin-bottom: .5rem; }
+    .video-card .info p { font-size: .85rem; color: rgba(245,230,211,.6); }
+    .video-card .subs { display: inline-block; margin-top: .8rem; padding: .3rem .8rem; border-radius: 100px; font-size: .7rem; text-transform: uppercase; letter-spacing: 1px; border: 1px solid rgba(241, 196, 15, .3); color: #f1c40f; }
+    #fun { background: linear-gradient(180deg, #0a0a0a 0%, #111008 100%); }
+    .fun-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+    .fun-card { padding: 2rem; border-radius: 16px; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.05); transition: all .3s; position: relative; overflow: hidden; }
+    .fun-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #e74c3c, #f1c40f); transform: scaleX(0); transform-origin: left; transition: transform .4s; }
+    .fun-card:hover::before { transform: scaleX(1); }
+    .fun-card:hover { background: rgba(255,255,255,.05); transform: translateY(-4px); }
+    .fun-card .emoji { font-size: 2.5rem; margin-bottom: 1rem; }
+    .fun-card h4 { font-size: 1.1rem; margin-bottom: .5rem; }
+    .fun-card p { font-size: .85rem; color: rgba(245,230,211,.6); }
+    #gallery { background: linear-gradient(180deg, #111008 0%, #0a0a0a 100%); }
+    .masonry { columns: 3; column-gap: 1rem; }
+    @media (max-width: 900px) { .masonry { columns: 2; } }
+    @media (max-width: 500px) { .masonry { columns: 1; } }
+    .masonry-item { break-inside: avoid; margin-bottom: 1rem; border-radius: 16px; overflow: hidden; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); transition: transform .3s; }
+    .masonry-item:hover { transform: scale(1.02); }
+    .masonry-item .img-placeholder { width: 100%; aspect-ratio: auto; background: linear-gradient(135deg, #2d1810, #1a1410); display: flex; align-items: center; justify-content: center; font-size: 3rem; padding: 2rem; }
+    .masonry-item .caption { padding: 1rem; font-size: .85rem; color: rgba(245,230,211,.7); }
+    footer { text-align: center; padding: 3rem 2rem; border-top: 1px solid rgba(255,255,255,.05); color: rgba(245,230,211,.3); font-size: .8rem; }
+    footer .tunisia { color: #e74c3c; }
+    .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .particle { position: absolute; width: 4px; height: 4px; background: rgba(231, 76, 60, .3); border-radius: 50%; animation: float linear infinite; }
+    @keyframes float { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; } }
+    @media (max-width: 768px) { section { padding: 4rem 1.5rem; } nav a { margin-left: 1rem; font-size: .75rem; } }
+  </style>
+</head>
+<body>
+<div class="pattern-overlay"></div>
+<div class="particles" id="particles"></div>
+<nav>
+  <span class="logo">✦ DARIA</span>
+  <div>
+    <a href="#about">About</a>
+    <a href="#videos">Videos</a>
+    <a href="#fun">Facts</a>
+    <a href="#gallery">Gallery</a>
+  </div>
+</nav>
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">Discover Tunisia</div>
+    <div class="hero-flag"><span class="red"></span><span class="white"></span><span class="red"></span></div>
+    <h1>DARIA</h1>
+    <p class="hero-sub">Where the Sahara kisses the sky — an ancient Berber land carved by time, culture, and endless beauty.</p>
+  </div>
+  <div class="scroll-indicator">
+    <span>scroll</span>
+    <span class="arrow">↓</span>
+  </div>
+</section>
+<section id="about">
+  <div class="container">
+    <h2 class="section-title">The Land That Time Forgot</h2>
+    <p class="section-sub">Tucked between the Mediterranean and the Sahara, Daria (Dahar) is southeastern Tunisia's best-kept secret.</p>
+    <div class="about-grid">
+      <div class="about-text">
+        <p><span class="highlight">Daria ⵣ</span> — also known as the Dahar mountains — is a rugged, breathtaking region in <span class="highlight">southeastern Tunisia</span>. For thousands of years, <span class="highlight">Berber (Amazigh)</span> communities have carved their lives into these mountains, building <span class="highlight">troglodyte homes</span>, <span class="highlight">fortified ksour</span>, and terraced farms called <span class="highlight">jessour</span> that capture every drop of rain.</p>
+        <p>In 2026, Daria became <span class="highlight">Tunisia's first UNESCO Global Geopark</span> — a living museum of 250 million years of geological history, dinosaur footprints, and ancient cave dwellings. It's a place where <span class="highlight">Star Wars</span> was filmed, where olive trees outlive empires, and where hospitality is a religion.</p>
+      </div>
+      <div class="stats">
+        <div class="stat-card">
+          <div class="number">6500 km²</div>
+          <div class="label">of untamed beauty</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">330K</div>
+          <div class="label">proud inhabitants</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">250M</div>
+          <div class="label">years of history</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">28</div>
+          <div class="label">UNESCO geosites</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="videos">
+  <div class="container">
+    <h2 class="section-title">Viral Tunisia</h2>
+    <p class="section-sub">The sounds, dances, and stories that took the internet by storm — all with subtitles so you don't miss a beat.</p>
+    <div class="video-grid">
+      <div class="video-card">
+        <div class="thumb">
+          <iframe src="https://www.youtube.com/embed/cLYkwdvL854" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="info">
+          <h3>Moulet El Kaya — Houssem Ben Romdhane & Amira Srarfi</h3>
+          <p>Tunisia's 2026 anthem. A modern twist on traditional mezoued that took over every wedding, car ride, and TikTok feed.</p>
+          <span class="subs">Arabic subtitles</span>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="thumb">
+          <iframe src="https://www.youtube.com/embed/KmoO8yvOvMA" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="info">
+          <h3>Tunisian Streams: Donia Somrani</h3>
+          <p>The most talked-about Tunisian content creator of 2026. Dance, drama, and pure Tunisian energy.</p>
+          <span class="subs">Arabic subtitles</span>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="thumb">
+          <iframe src="https://www.youtube.com/embed/?v=qR9m0LlQhGk" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="info">
+          <h3>Ammar 808 — Douri Douri feat. Brahim Riahi</h3>
+          <p>6M+ TikTok views. Mezoued folk music reimagined with thumping 808s. The track that made Tunisia dance to its own roots.</p>
+          <span class="subs">Arabic + French subs</span>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="thumb">
+          <iframe src="https://www.youtube.com/embed/?v=XFoqantwI1Q" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="info">
+          <h3>Mortadha Ftiti — Amana Alik</h3>
+          <p>One of Tunisia's biggest streaming hits. Blending rap, folk, and that unmistakable Tunisian vibe.</p>
+          <span class="subs">Arabic subtitles</span>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="thumb">
+          <iframe src="https://www.youtube.com/embed/?v=QZzzQNYYGRk" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="info">
+          <h3>Sanfara — Ghabiya</h3>
+          <p>Tunisian rap meets Saharan soul. The video that had everyone from Tunis to Tataouine hitting replay.</p>
+          <span class="subs">Arabic subtitles</span>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="thumb">
+          <iframe src="https://www.youtube.com/embed/?v=G__N8dA1qU4" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="info">
+          <h3>VIPA — Ken Ritni 9olli</h3>
+          <p>The breakout hit that dominated Tunisian radio and playlists. Catchy, raw, and undeniably Tunisian.</p>
+          <span class="subs">Arabic subtitles</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="fun">
+  <div class="container">
+    <h2 class="section-title">Daria Decoded</h2>
+    <p class="section-sub">Mind-blowing facts about this corner of the world that punches way above its weight.</p>
+    <div class="fun-grid">
+      <div class="fun-card">
+        <div class="emoji">🦕</div>
+        <h4>Dinosaur Central</h4>
+        <p>Daria is home to <em>Tataouinea hannibalis</em> — a dinosaur species named after Tataouine. Yes, <em>that</em> Tataouine that inspired Star Wars.</p>
+      </div>
+      <div class="fun-card">
+        <div class="emoji">🏠</div>
+        <h4>Living in Caves</h4>
+        <p>Locals have lived in <strong>troglodyte homes</strong> for centuries. Naturally cool in summer, warm in winter, like something from a fantasy novel.</p>
+      </div>
+      <div class="fun-card">
+        <div class="emoji">🪐</div>
+        <h4>Star Wars Land</h4>
+        <p>George Lucas filmed Luke Skywalker's home planet <strong>Tatooine</strong> right here. The ksour and desertscapes became a galaxy far, far away.</p>
+      </div>
+      <div class="fun-card">
+        <div class="emoji">🌿</div>
+        <h4>Jessour Magic</h4>
+        <p>Ancient Berber farmers built <strong>jessour</strong> — terraced dams that trap rainwater in arid mountains. Genius engineering that's fed families for millennia.</p>
+      </div>
+      <div class="fun-card">
+        <div class="emoji">🧵</div>
+        <h4>Rainbow Weaving</h4>
+        <p>Daria's women weave the most colorful carpets in North Africa. Each pattern tells a story — marriage, harvest, or just a really good joke.</p>
+      </div>
+      <div class="fun-card">
+        <div class="emoji">🫒</div>
+        <h4>Olive Gold</h4>
+        <p>Some olive trees here are <strong>over 2,000 years old</strong>. They were planted when Hannibal was still marching elephants through the Alps.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="container">
+    <h2 class="section-title">Daria in Frames</h2>
+    <p class="section-sub">A glimpse into the soul of southern Tunisia — from ancient granaries to Saharan sunsets.</p>
+    <div class="masonry">
+      <div class="masonry-item">
+        <div class="img-placeholder">🏛️</div>
+        <div class="caption">Ksar Ouled Soltane — the most beautiful fortified granary in Tunisia</div>
+      </div>
+      <div class="masonry-item">
+        <div class="img-placeholder">🌅</div>
+        <div class="caption">Sunset over the Dahar mountains — where earth meets sky</div>
+      </div>
+      <div class="masonry-item">
+        <div class="img-placeholder">🕯️</div>
+        <div class="caption">Troglodyte home interior — cool, cozy, carved by hand</div>
+      </div>
+      <div class="masonry-item">
+        <div class="img-placeholder">🧶</div>
+        <div class="caption">Berber women weaving legendary Daria carpets</div>
+      </div>
+      <div class="masonry-item">
+        <div class="img-placeholder">🌌</div>
+        <div class="caption">Milky Way over the Sahara — zero light pollution, infinite stars</div>
+      </div>
+      <div class="masonry-item">
+        <div class="img-placeholder">🦎</div>
+        <div class="caption">Dinosaur footprints preserved in stone for 100+ million years</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Made with ❤️ for <span class="tunisia">Tunisia</span> • Daria (Dahar) • 2026<br>
+  <span style="font-size: 2rem; line-height: 2;">ⵣ</span>
+</footer>
+
+<script>
+  (function() {
+    const container = document.getElementById('particles');
+    const numParticles = (window.innerWidth < 768) ? 20 : 40;
+    for (let i = 0; i < numParticles; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDuration = (15 + Math.random() * 30) + 's';
+      p.style.animationDelay = (Math.random() * 30) + 's';
+      p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
+      container.appendChild(p);
+    }
+  })();
+  document.querySelectorAll('nav a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>
